@@ -1,6 +1,6 @@
 import hmac
 from functools import wraps
-from hashlib import sha512
+from hashlib import sha512, sha1
 from urllib.parse import urlparse
 from urllib.parse import urlunparse
 
@@ -61,6 +61,8 @@ def decode_cookie(cookie, key=None):
         return
 
     if hmac.compare_digest(_cookie_digest(payload, key=key), digest):
+        return payload
+    if hmac.compare_digest(_cookie_digest2(payload, key=key), digest):
         return payload
 
 
@@ -390,6 +392,11 @@ def _cookie_digest(payload, key=None):
     key = _secret_key(key)
 
     return hmac.new(key, payload.encode("utf-8"), sha512).hexdigest()
+
+def _cookie_digest2(payload, key=None):
+    key = _secret_key(key)
+
+    return hmac.new(key, payload.encode("utf-8"), sha1).hexdigest()
 
 
 def _get_remote_addr():
